@@ -1,9 +1,9 @@
 #pragma once
 
-#include "xmrstak/misc/console.hpp"
-#include "xmrstak/misc/configEditor.hpp"
-#include "xmrstak/params.hpp"
 #include "xmrstak/backend/cryptonight.hpp"
+#include "xmrstak/misc/configEditor.hpp"
+#include "xmrstak/misc/console.hpp"
+#include "xmrstak/params.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -16,7 +16,6 @@
 #include <hwloc.h>
 #include <stdio.h>
 
-
 namespace xmrstak
 {
 namespace cpu
@@ -24,14 +23,15 @@ namespace cpu
 
 class autoAdjust
 {
-public:
-
+  public:
 	autoAdjust()
 	{
-		hashMemSize = std::max(
-			cn_select_memory(::jconf::inst()->GetCurrentCoinSelection().GetDescription(1).GetMiningAlgo()),
-			cn_select_memory(::jconf::inst()->GetCurrentCoinSelection().GetDescription(1).GetMiningAlgoRoot())
-		);
+		auto neededAlgorithms = ::jconf::inst()->GetCurrentCoinSelection().GetAllAlgorithms();
+
+		for(const auto algo : neededAlgorithms)
+		{
+			hashMemSize = std::max(hashMemSize, algo.Mem());
+		}
 		halfHashMemSize = hashMemSize / 2u;
 	}
 
@@ -46,10 +46,19 @@ public:
 		configEditor configTpl{};
 
 		// load the template of the backend config into a char variable
-		const char *tpl =
-			#include "./config.tpl"
-		;
-		configTpl.set( std::string(tpl) );
+		const char* tpl =
+#include "./config.tpl"
+			;
+		configTpl.set(std::string(tpl));
+
+		// if cryptonight_gpu is used we will disable cpu mining but provide a inactive config
+		bool useCryptonight_gpu = ::jconf::inst()->GetCurrentCoinSelection().GetDescription(1).GetMiningAlgo() == cryptonight_gpu;
+
+		if(useCryptonight_gpu)
+		{
+			printer::inst()->print_msg(L0, "WARNING: CPU mining will be disabled because cryptonight_gpu is not suitable for CPU mining. You can uncomment the auto generated config in %s to enable CPU mining.", params::inst().configFileCPU.c_str());
+			conf += "/*\n//CPU config is disabled by default because cryptonight_gpu is not suitable for CPU mining.\n";
+		}
 
 		try
 		{
@@ -58,7 +67,7 @@ public:
 			results.reserve(16);
 
 			findChildrenCaches(hwloc_get_root_obj(topology),
-				[&tlcs](hwloc_obj_t found) { tlcs.emplace_back(found); } );
+				[&tlcs](hwloc_obj_t found) { tlcs.emplace_back(found); });
 
 			if(tlcs.size() == 0)
 				throw(std::runtime_error("The CPU doesn't seem to have a cache."));
@@ -70,7 +79,7 @@ public:
 			{
 				conf += std::string("    { \"low_power_mode\" : ");
 				conf += std::string((id & 0x8000000) != 0 ? "true" : "false");
-				conf += std::string(", \"no_prefetch\" : true, \"affine_to_cpu\" : ");
+				conf += std::string(", \"no_prefetch\" : true, \"asm\" : \"auto\", \"affine_to_cpu\" : ");
 				conf += std::to_string(id & 0x7FFFFFF);
 				conf += std::string(" },\n");
 			}
@@ -78,11 +87,15 @@ public:
 		catch(const std::runtime_error& err)
 		{
 			// \todo add fallback to default auto adjust
-			conf += std::string("    { \"low_power_mode\" : false, \"no_prefetch\" : true, \"affine_to_cpu\" : false },\n");
+			conf += std::string("    { \"low_power_mode\" : false");
+			conf += std::string(", \"no_prefetch\" : true, \"asm\" : \"off\", \"affine_to_cpu\" : false },\n");
 			printer::inst()->print_msg(L0, "Autoconf FAILED: %s. Create config for a single thread.", err.what());
 		}
 
-		configTpl.replace("CPUCONFIG",conf);
+		if(useCryptonight_gpu)
+			conf += "*/\n";
+
+		configTpl.replace("CPUCONFIG", conf);
 		configTpl.write(params::inst().configFileCPU);
 		printer::inst()->print_msg(L0, "CPU configuration stored in file '%s'", params::inst().configFileCPU.c_str());
 		/* Destroy topology object. */
@@ -91,16 +104,16 @@ public:
 		return true;
 	}
 
-private:
-	size_t hashMemSize;
-	size_t halfHashMemSize;
+  private:
+	size_t hashMemSize = 0;
+	size_t halfHashMemSize = 0;
 
 	std::vector<uint32_t> results;
 
-	template<typename func>
+	template <typename func>
 	inline void findChildrenByType(hwloc_obj_t obj, hwloc_obj_type_t type, func lambda)
 	{
-		for(size_t i=0; i < obj->arity; i++)
+		for(size_t i = 0; i < obj->arity; i++)
 		{
 			if(obj->children[i]->type == type)
 				lambda(obj->children[i]);
@@ -118,10 +131,10 @@ private:
 #endif // HWLOC_API_VERSION
 	}
 
-	template<typename func>
+	template <typename func>
 	inline void findChildrenCaches(hwloc_obj_t obj, func lambda)
 	{
-		for(size_t i=0; i < obj->arity; i++)
+		for(size_t i = 0; i < obj->arity; i++)
 		{
 			if(isCacheObject(obj->children[i]))
 				lambda(obj->children[i]);
@@ -144,7 +157,7 @@ private:
 			throw(std::runtime_error("Cache object hasn't got attributes."));
 
 		size_t PUs = 0;
-		findChildrenByType(obj, HWLOC_OBJ_PU, [&PUs](hwloc_obj_t found) { PUs++; } );
+		findChildrenByType(obj, HWLOC_OBJ_PU, [&PUs](hwloc_obj_t found) { PUs++; });
 
 		//Strange case, but we will handle it silently, surely there must be one PU somewhere?
 		if(PUs == 0)
@@ -157,7 +170,7 @@ private:
 				throw(std::runtime_error("The CPU doesn't seem to have a cache."));
 
 			//Try our luck with lower level caches
-			for(size_t i=0; i < obj->arity; i++)
+			for(size_t i = 0; i < obj->arity; i++)
 				processTopLevelCache(obj->children[i]);
 			return;
 		}
@@ -165,7 +178,7 @@ private:
 		size_t cacheSize = obj->attr->cache.size;
 		if(isCacheExclusive(obj))
 		{
-			for(size_t i=0; i < obj->arity; i++)
+			for(size_t i = 0; i < obj->arity; i++)
 			{
 				hwloc_obj_t l2obj = obj->children[i];
 				//If L2 is exclusive and greater or equal to 2MB add room for one more hash
@@ -176,7 +189,7 @@ private:
 
 		std::vector<hwloc_obj_t> cores;
 		cores.reserve(16);
-		findChildrenByType(obj, HWLOC_OBJ_CORE, [&cores](hwloc_obj_t found) { cores.emplace_back(found); } );
+		findChildrenByType(obj, HWLOC_OBJ_CORE, [&cores](hwloc_obj_t found) { cores.emplace_back(found); });
 
 		size_t cacheHashes = (cacheSize + halfHashMemSize) / hashMemSize;
 
