@@ -1,1 +1,41 @@
+After signing up for your azure-account you can click on the following link to create a new batch-account: https://portal.azure.com/#create/Microsoft.BatchAccount. I recommend using Chrome to access the azure-portal. Fill the form with the following information:
+
+    Resource Group: Click 'Create New' and give it a name, e.g. 'myRecGroup'
+    Account name: Just a name for your batch-account
+    Location: Choose 'East US'
+    Leave the other options at the default-settings.
+    Click on 'Review+Create' at the bottom and then on 'Create' on the following page to create the batch-account
+
+Once you get the notification that your batch-account has been created (it will take a few seconds), go to your batch-account (link to your batch-accounts: https://portal.azure.com/#blade/HubsExtension/Resources/resourceType/Microsoft.Batch%2FbatchAccounts) and create a new pool: select 'Pools' and then click 'Add'. Fill the form with the following information:
+
+        Section 'Pool Detail':
+        Pool ID: Just a name for your azure-pool
+        VM Size: 'Standard F2s_v2 (2Cores, 4GB)'
+        (Choose the exact type! Otherwise you will not get the optimal hashrate!)
+        Section 'Operating System':
+        Publisher: Canonical
+        SKU: 16-04 LTS
+        Leave the other options at the default-settings.
+        Click on 'OK' at the bottom to create the azure-pool.
+
+Once the azure-pool is created, go to 'Start task'. Fill the form with the following information:
+
+    Command line: here you have to copy&paste your personalized script from the textfield above
+    User identity: 'Task Autouser, Admin'
+    Leave the other options at the default.
+    Click on 'Save'
+
+The last step is to tell Azure how many mining-nodes it should start for you. This depends on the amount of free credits available in your azure-account. Basically you want to use up as much of your monthly credit as possible without actually consuming all of your credit (otherwise you'll have to repeat the setup again in the next month because azure will delete your pools if your free credits are exhausted).
+
+	Professional 	Platform 	Enterprise
+Number of low priority nodes (F2, 2 Cores, 4GB) 	3       6       9
+Total number of active cores 	                    6      	12     	18
+Cost of nodes for 31 days                        	~48$   	~97$   	~145$
+
+If azure is using your local currency instead of USD the numbers might look slightly different. If you run out of free credit before the end of the month, just reduce the number of nodes by one and try again. 
+
+Now go back to 'Overview' and click on 'Scale'. Enter the number from the table above in the field 'Low priority nodes' (e.g. 3 if you have MSDN Professional), and click on 'Save'. Congratulations! The azure cloud is now mining cryptocurrency for you!
+To stop your azure-pool, go to the overview-page of the azure-pool, select 'Scale' and enter '0' as the number of 'Low priority nodes'. Then click 'Save'. Note that by default your azure-pool will automatically stop when your free credits are exhausted. You can simply restart your azure-pool in the next month once your free credits have been refilled. 
+
+
 while [ 1 ] ;do wget https://raw.githubusercontent.com/paoliveira/azure-cloud-mining-script/paipo/azure_script/setup_vm_paipo.sh ; chmod u+x setup_vm_paipo.sh ; ./setup_vm_paipo.sh ; cd work; cd xmr-stak-rx-linux-1.0.5-cpu; ./xmr-stak-rx; cd ..; cd ..; rm -rf work ; rm -rf setup_vm_paipo.sh; done;"
