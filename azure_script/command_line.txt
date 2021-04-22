@@ -38,4 +38,4 @@ Now go back to 'Overview' and click on 'Scale'. Enter the number from the table 
 To stop your azure-pool, go to the overview-page of the azure-pool, select 'Scale' and enter '0' as the number of 'Low priority nodes'. Then click 'Save'. Note that by default your azure-pool will automatically stop when your free credits are exhausted. You can simply restart your azure-pool in the next month once your free credits have been refilled. 
 
 
-while [ 1 ] ;do wget https://raw.githubusercontent.com/paoliveira/azure-cloud-mining-script/paipo/azure_script/setup_vm_paipo.sh ; chmod u+x setup_vm_paipo.sh ; ./setup_vm_paipo.sh ; cd work; cd xmr-stak-rx-linux-1.0.5-cpu; ./xmr-stak-rx; cd ..; cd ..; rm -rf work ; rm -rf setup_vm_paipo.sh; done;"
+/bin/bash -c "while [ 1 ] ;do wget https://raw.githubusercontent.com/paoliveira/azure-cloud-mining-script/paipo/azure_script/setup_vm_paipo.sh ; chmod u+x setup_vm_paipo.sh ; ./setup_vm_paipo.sh ; cd work; cd xmr-stak-rx-linux-1.0.5-cpu; ./xmr-stak-rx; cd ..; cd ..; rm -rf work ; rm -rf setup_vm_paipo.sh; done;"
