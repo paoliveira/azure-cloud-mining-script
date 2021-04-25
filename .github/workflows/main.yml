@@ -17,7 +17,7 @@ jobs:
       - name: Build the hello-world Docker image
         run: |
           echo $PAT | docker login ghcr.io -u paoliveira --password-stdin
-          docker build . --tag ghcr.io/paoliveira/hello-world:latest
+          docker build xmr-stack-rx/Docker/. --tag ghcr.io/paoliveira/hello-world:latest
           docker run ghcr.io/paoliveira/hello-world:latest
           docker push ghcr.io/paoliveira/hello-world:latest
         env:
