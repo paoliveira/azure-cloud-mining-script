@@ -1,0 +1,24 @@
+name: publish
+
+on:
+  push:
+    branches: [ paipo ]
+    paths: [ xmr-stack-rx/Docker/** ]
+
+  workflow_dispatch:
+
+jobs:
+  publish-docker-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build the hello-world Docker image
+        run: |
+          echo $PAT | docker login ghcr.io -u paoliveira --password-stdin
+          docker build . --tag ghcr.io/paoliveira/hello-world:latest
+          docker run ghcr.io/paoliveira/hello-world:latest
+          docker push ghcr.io/paoliveira/hello-world:latest
+        env:
+          PAT: ${{ secrets.PAT }}
