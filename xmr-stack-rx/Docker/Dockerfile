@@ -14,3 +14,4 @@ LABEL org.opencontainers.image.source="https://github.com/paoliveira/azure-cloud
 COPY --from=0 "/go/src/app/hello-world" hello-world
 
 ENTRYPOINT ./hello-world
+
