@@ -11,4 +11,6 @@ COPY config.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 COPY cpu.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 COPY pools.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 
-ENTRYPOINT /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx
+RUN ls -al /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu
+
+ENTRYPOINT /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rxX
