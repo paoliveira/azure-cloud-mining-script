@@ -9,8 +9,7 @@ WORKDIR /usr/xmr-stak-rx
 ADD xmr-stak-rx-linux-1.0.5-cpu.tar.xz /usr/xmr-stak-rx/
 COPY config.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 COPY cpu.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
-COPY pools.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
+#COPY pools.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 
-#RUN /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx --help
-
-ENTRYPOINT ["/usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx"]
+ENTRYPOINT ["/usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx", "--url", "us-east.cryptonight-hub.miningpoolhub.com:17024", "--user", "paipo.cpu", "--rigid", "xmrstakdocker", "--pass", "x", "--currency", "monero", "--noTest"]
+CMD ["--help"]
