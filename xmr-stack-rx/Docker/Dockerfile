@@ -11,5 +11,5 @@ COPY config.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 COPY cpu.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 #COPY pools.txt /usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/
 
-ENTRYPOINT ["/usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx", "--url", "us-east.cryptonight-hub.miningpoolhub.com:17024", "--user", "paipo.cpu", "--rigid", "xmrstakdocker", "--pass", "x", "--currency", "monero", "--noTest"]
-CMD ["--help"]
+ENTRYPOINT ["/usr/xmr-stak-rx/xmr-stak-rx-linux-1.0.5-cpu/xmr-stak-rx", "--url", "us-east.cryptonight-hub.miningpoolhub.com:17024", "--user", "paipo.cpu", "--rigid", "xmrstakdocker", "--pass", "x", "--currency", "monero"]
+CMD ["--noTest"]
