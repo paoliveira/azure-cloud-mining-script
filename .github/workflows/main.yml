@@ -17,8 +17,8 @@ jobs:
       - name: Build the xmr Docker image
         run: |
           echo $PAT | docker login ghcr.io -u paoliveira --password-stdin
-          docker build xmr-stack-rx/Docker/. --tag ghcr.io/paoliveira/xmr:latest
-          docker run ghcr.io/paoliveira/xmr:latest
-          docker push ghcr.io/paoliveira/xmr:latest
+          docker build xmr-stack-rx/Docker/. --tag ghcr.io/paoliveira/xmr:4core
+          docker run ghcr.io/paoliveira/xmr:4core
+          docker push ghcr.io/paoliveira/xmr:4core
         env:
           PAT: ${{ secrets.PAT }}
